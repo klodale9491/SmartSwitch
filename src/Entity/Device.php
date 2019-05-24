@@ -26,6 +26,11 @@ class Device
      */
     private $type;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\DeviceDriver", inversedBy="devices")
+     */
+    private $driver;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -51,6 +56,18 @@ class Device
     public function setType(string $type): self
     {
         $this->type = $type;
+
+        return $this;
+    }
+
+    public function getDriver(): ?DeviceDriver
+    {
+        return $this->driver;
+    }
+
+    public function setDriver(?DeviceDriver $driver): self
+    {
+        $this->driver = $driver;
 
         return $this;
     }

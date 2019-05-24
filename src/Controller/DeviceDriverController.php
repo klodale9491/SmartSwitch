@@ -21,9 +21,10 @@ class DeviceDriverController extends AbstractController
         // just setup a fresh $task object (remove the dummy data)
         $deviceDriver = new DeviceDriver();
         $form = $this->createFormBuilder($deviceDriver)
+            ->add('name', TextType::class)
             ->add('type', TextType::class)
             ->add('mac', TextType::class)
-            ->add('save', SubmitType::class, ['label' => 'Create Device-Driver'])
+            ->add('save', SubmitType::class, ['label' => 'Save'])
             ->getForm();
         $form->handleRequest($request);
 

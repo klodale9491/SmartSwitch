@@ -10,6 +10,7 @@
         "doctrine/doctrine-bundle": "^1.11",
         "doctrine/orm": "*",
         "sensio/framework-extra-bundle": "^5.3",
+        "symfony/apache-pack": "^1.0",
         "symfony/asset": "4.2.*",
         "symfony/console": "*",
         "symfony/dotenv": "*",

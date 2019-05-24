@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -30,6 +32,18 @@ class DeviceDriver
      * @ORM\Column(type="string", length=18)
      */
     private $mac;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Device", mappedBy="driver")
+     */
+    private $devices;
+
+    public function __construct()
+    {
+        $this->devices = new ArrayCollection();
+    }
+
+
 
     public function getId(): ?int
     {
@@ -68,6 +82,37 @@ class DeviceDriver
     public function setMac(string $mac): self
     {
         $this->mac = $mac;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Device[]
+     */
+    public function getDevices(): Collection
+    {
+        return $this->devices;
+    }
+
+    public function addDevice(Device $device): self
+    {
+        if (!$this->devices->contains($device)) {
+            $this->devices[] = $device;
+            $device->setDriver($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDevice(Device $device): self
+    {
+        if ($this->devices->contains($device)) {
+            $this->devices->removeElement($device);
+            // set the owning side to null (unless already changed)
+            if ($device->getDriver() === $this) {
+                $device->setDriver(null);
+            }
+        }
 
         return $this;
     }
