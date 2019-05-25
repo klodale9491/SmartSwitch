@@ -2,15 +2,45 @@
 
 
 {% block body %}
-    <h2>Device registered list</h2>
-
+    <h2>
+        Device registered list
+    </h2>
+    <a class="btn btn-danger" href="{{ path('app_logout') }}" role="button">Logout</a>
+    <br><br>
     <ul class="list-group">
-        <li class="list-group-item">Dapibus ac facilisis in</li>
+        {% for drv in drivers %}
+            <li class="list-group-item">
+                {{ drv.name }}
+                <a class="btn btn-danger"  style = "float:right" href="{{ path('delete_device_driver', {driver_id: drv.id}) }}" role="button">Del driver</a>
+                <a class="btn btn-primary" style = "float:right" href="{{ path('add_device_to_driver', {driver_id: drv.id}) }}" role="button">Add device</a>
+            </li>
+            <li class="list-group-item">
+                <ul class="list-group">
+                    {% for dev in drv.devices %}
+                        <li class="list-group-item">
+                            <div>
+                                {{ dev.name }}
+                                <a class="btn btn-danger"  style = "float:right" href="{{ path('remove_device', {device_id: dev.id}) }}" role="button">Del device</a>
+                                <label class="switch">
+                                    <input type="checkbox"
+                                           onchange="sendCommand('{{ drv.ip }}', {{ dev.relay }} , $(this).prop('checked'))"
+                                           id="drv_{{ drv.id }}_relay_{{ dev.relay }}"
+                                           {{ (dev.status == 1) ? 'checked' : '' }}
+                                    >
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </li>
+        {% endfor %}
     </ul>
 
-    <form>
-        <button class="brn btn-primary">Add device driver</button>
-        <button class="brn btn-primary">Add device</button>
-    </form>
+    <br>
+    <br>
+    <br>
+    <a class="btn btn-primary" href="{{ path('add_device_driver') }}" role="button">Add device driver</a>
+</span>
 
 {% endblock %}
