@@ -34,9 +34,19 @@ class DeviceDriver
     private $mac;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Device", mappedBy="driver")
+     * @ORM\OneToMany(targetEntity="App\Entity\Device", mappedBy="driver", cascade={"persist", "remove"})
      */
     private $devices;
+
+    /**
+     * @ORM\Column(type="string", length=16)
+     */
+    private $ip;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $port;
 
     public function __construct()
     {
@@ -113,6 +123,30 @@ class DeviceDriver
                 $device->setDriver(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getIp(): ?string
+    {
+        return $this->ip;
+    }
+
+    public function setIp(string $ip): self
+    {
+        $this->ip = $ip;
+
+        return $this;
+    }
+
+    public function getPort(): ?int
+    {
+        return $this->port;
+    }
+
+    public function setPort(int $port): self
+    {
+        $this->port = $port;
 
         return $this;
     }

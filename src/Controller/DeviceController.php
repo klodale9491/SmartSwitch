@@ -8,6 +8,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -16,29 +17,33 @@ use Symfony\Component\Routing\Annotation\Route;
 class DeviceController extends AbstractController
 {
 
-
     /**
-     * @Route("/device/new", name="device_new")
+     * Add device to controller
+     * @Route("/admin/driver/{driver_id}/add", name="add_device_to_driver")
      */
-    public function new(Request $request)
+    public function addDeviceToDriver(Request $request, $driver_id)
     {
         // just setup a fresh $task object (remove the dummy data)
         $device = new Device();
         $form = $this->createFormBuilder($device)
             ->add('name', TextType::class)
             ->add('type', TextType::class)
+            ->add('relay', IntegerType::class)
+            ->add('status', IntegerType::class)
             ->add('save', SubmitType::class, ['label' => 'Save'])
             ->getForm();
         $form->handleRequest($request);
 
         //  If form is submitted persist new data
         if ($form->isSubmitted() && $form->isValid()) {
-            // $form->getData() holds the submitted values
-            // but, the original `$task` variable has also been updated
-            $device = $form->getData();
             $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->persist($device);
-            $entityManager->flush();
+            $device = $form->getData();
+            $driver = $entityManager->find(DeviceDriver::class, $driver_id);
+            if($driver){
+                $driver->addDevice($device);
+                $entityManager->merge($driver);
+                $entityManager->flush();
+            }
             return $this->redirectToRoute('app_home');
         }
 
@@ -50,57 +55,38 @@ class DeviceController extends AbstractController
 
 
     /**
-     * @Route("/device/bind", name="device_bind")
+     * Remove device
+     * @Route("/admin/device/{device_id}/del", name="remove_device")
      */
-    public function bind(Request $request)
-    {
-        // bind device to controller
+    public function removeDeviceFromController($device_id){
         $entityManager = $this->getDoctrine()->getManager();
-        $repositoryDriver = $this->getDoctrine()->getRepository(DeviceDriver::class);
-        $repositoryDevice = $this->getDoctrine()->getRepository(Device::class);
-
-        $deviceDrivers = $repositoryDriver->findAll();
-        $controllerNames = [];
-        foreach($deviceDrivers as $controller){
-            $controllerNames[] = $controller->getName();
+        $device = $entityManager->find(Device::class, $device_id);
+        if($device){
+            $entityManager->remove($device);
+            $entityManager->flush();
         }
-        $devices = $repositoryDevice->findAll();
-        $deviceNames = [];
-        foreach($devices as $device){
-            $deviceNames[] = $device->getName();
-        }
-        $form = $this->createFormBuilder()
-            ->add('driver', ChoiceType::class, $controllerNames)
-            ->add('device', ChoiceType::class, $deviceNames)
-            ->add('save', SubmitType::class, ['label' => 'Bind'])
-            ->getForm();
-        $form->handleRequest($request);
-
-
-        //  If form is submitted persist new data
-        if ($form->isSubmitted() && $form->isValid()) {
-            $formData = $form->getData();
-
-            $deviceDriver = $repositoryDriver->findOneBy([
-                "name" => $formData["driver"]
-            ]);
-            $device = $repositoryDevice->findOneBy([
-                "name" => $formData["device"]
-            ]);
-            if($deviceDriver && $device){
-                $deviceDriver->addDevice($device);
-                $entityManager->merge($deviceDriver);
-                $entityManager->flush();
-                return $this->redirectToRoute('app_home');
-            }
-        }
-
-        //  render form to insert data
-        return $this->render('device/bind_device.html.twig', [
-            'form' => $form->createView(),
-        ]);
+        //  return to home
+        return $this->redirectToRoute('app_home');
     }
 
 
+    /**
+     * Update status device
+     * @Route("/admin/device/{device_id}/status/{status_val}", name="update_device")
+     */
+    public function updateDeviceStaus($device_id, $status_val){
+        $entityManager = $this->getDoctrine()->getManager();
+        $device = $entityManager->find(Device::class, $device_id);
+        if($device){
+            $url = "https://" . $device->getDriver()->getIp() . "relay/" . $device->getRelay() . "$status_val";
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_HEADER, TRUE);
+            curl_setopt($ch, CURLOPT_NOBODY, TRUE); // remove body
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+            $head = curl_exec($ch);
+            return $this->redirectToRoute('app_home');
+        }
+    }
 
 }

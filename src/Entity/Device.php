@@ -31,6 +31,16 @@ class Device
      */
     private $driver;
 
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $relay;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $status;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -68,6 +78,30 @@ class Device
     public function setDriver(?DeviceDriver $driver): self
     {
         $this->driver = $driver;
+
+        return $this;
+    }
+
+    public function getRelay(): ?int
+    {
+        return $this->relay;
+    }
+
+    public function setRelay(int $relay): self
+    {
+        $this->relay = $relay;
+
+        return $this;
+    }
+
+    public function getStatus(): ?int
+    {
+        return $this->status;
+    }
+
+    public function setStatus(int $status): self
+    {
+        $this->status = $status;
 
         return $this;
     }
