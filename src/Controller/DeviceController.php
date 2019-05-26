@@ -48,9 +48,44 @@ class DeviceController extends AbstractController
         }
 
         //  render form to insert data
-        return $this->render('device/new.html.twig', [
+        return $this->render('device/form.html.twig', [
             'form' => $form->createView(),
         ]);
+    }
+
+
+    /**
+     * Edit an existing device
+     * @Route("/admin/device/edit/{device_id}", name="edit_device")
+     */
+    public function editDeviceDriver(Request $request, $device_id)
+    {
+        $entityManager = $this->getDoctrine()->getManager();
+        $device = $entityManager->find( Device::class, $device_id);
+        if($device){
+            $form = $this->createFormBuilder($device)
+                ->add('name', TextType::class)
+                ->add('type', TextType::class)
+                ->add('relay', IntegerType::class)
+                ->add('status', IntegerType::class)
+                ->add('save', SubmitType::class, ['label' => 'Edit'])
+                ->getForm();
+            $form->setData($device);
+            $form->handleRequest($request);
+
+            //  If form is submitted persist new data
+            if ($form->isSubmitted() && $form->isValid()) {
+                $device = $form->getData();
+                $entityManager->merge($device);
+                $entityManager->flush();
+                return $this->redirectToRoute('app_home');
+            }
+
+            //  render form to insert data
+            return $this->render('device_driver/form.html.twig', [
+                'form' => $form->createView(),
+            ]);
+        }
     }
 
 

@@ -11,6 +11,7 @@
         {% for drv in drivers %}
             <li class="list-group-item">
                 {{ drv.name }}
+                <a class="btn btn-secondary"  style = "float:right" href="{{ path('edit_device_driver', {driver_id: drv.id}) }}" role="button">Edit driver</a>
                 <a class="btn btn-danger"  style = "float:right" href="{{ path('delete_device_driver', {driver_id: drv.id}) }}" role="button">Del driver</a>
                 <a class="btn btn-primary" style = "float:right" href="{{ path('add_device_to_driver', {driver_id: drv.id}) }}" role="button">Add device</a>
             </li>
@@ -20,6 +21,7 @@
                         <li class="list-group-item">
                             <div>
                                 {{ dev.name }}
+                                <a class="btn btn-secondary"  style = "float:right" href="{{ path('edit_device', {device_id: dev.id}) }}" role="button">Edit device</a>
                                 <a class="btn btn-danger"  style = "float:right" href="{{ path('remove_device', {device_id: dev.id}) }}" role="button">Del device</a>
                                 <label class="switch">
                                     <input type="checkbox"

@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Controller;
 
 use App\Entity\DeviceDriver;
@@ -42,9 +41,45 @@ class DeviceDriverController extends AbstractController
         }
 
         //  render form to insert data
-        return $this->render('device_driver/new.html.twig', [
+        return $this->render('device_driver/form.html.twig', [
             'form' => $form->createView(),
         ]);
+    }
+
+
+    /**
+     * Edit an existing device driver
+     * @Route("/admin/device_driver/edit/{driver_id}", name="edit_device_driver")
+     */
+    public function editDeviceDriver(Request $request, $driver_id)
+    {
+        $entityManager = $this->getDoctrine()->getManager();
+        $deviceDriver = $entityManager->find( DeviceDriver::class, $driver_id);
+        if($deviceDriver){
+            $form = $this->createFormBuilder($deviceDriver)
+                ->add('name', TextType::class)
+                ->add('type', TextType::class)
+                ->add('mac', TextType::class)
+                ->add('ip', TextType::class)
+                ->add('port', IntegerType::class)
+                ->add('save', SubmitType::class, ['label' => 'Edit'])
+                ->getForm();
+            $form->setData($deviceDriver);
+            $form->handleRequest($request);
+
+            //  If form is submitted persist new data
+            if ($form->isSubmitted() && $form->isValid()) {
+                $deviceDriver = $form->getData();
+                $entityManager->merge($deviceDriver);
+                $entityManager->flush();
+                return $this->redirectToRoute('app_home');
+            }
+
+            //  render form to insert data
+            return $this->render('device_driver/form.html.twig', [
+                'form' => $form->createView(),
+            ]);
+        }
     }
 
 

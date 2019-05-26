@@ -1,9 +1,11 @@
-{# templates/task/new.html.twig #}
+{# templates/task/form.html.twig #}
 {% extends 'base.html.twig' %}
 
 
 {% form_theme form 'bootstrap_4_layout.html.twig' %}
 
 {% block body %}
+    <h2>Insert new device driver data</h2>
+    <br>
     {{ form(form) }}
 {% endblock %}
